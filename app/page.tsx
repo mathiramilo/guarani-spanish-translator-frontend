@@ -1,40 +1,25 @@
 'use client'
 
 import Image from 'next/image'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
+import CopyButton from '@/components/CopyButton'
+import { TRANSLATION_EXAMPLES, LANGUAGES } from '@/utils/consts'
 import { debounce } from '@/utils/debounce'
 
-const TRANSLATION_EXAMPLES = {
-  gn: [
-    'Traducción de texto de ejemplo 1',
-    'Traducción de texto de ejemplo 2',
-    'Traducción de texto de ejemplo 3',
-    'Traducción de texto de ejemplo 4',
-    'Traducción de texto de ejemplo 5'
-  ],
-  es: [
-    "Ñembohasa ha'e ñe'ẽme 1",
-    "Ñembohasa ha'e ñe'ẽme 2",
-    "Ñembohasa ha'e ñe'ẽme 3",
-    "Ñembohasa ha'e ñe'ẽme 4",
-    "Ñembohasa ha'e ñe'ẽme 5"
-  ]
-}
-
 export default function Home() {
-  const [originLanguage, setOriginLanguage] = useState('es')
+  const [originLanguage, setOriginLanguage] = useState<string>(LANGUAGES.es)
   const [originText, setOriginText] = useState<string>('')
   const [translatedText, setTranslatedText] = useState<string>('')
 
   const toggleLanguage = () => {
-    setOriginLanguage(originLanguage === 'es' ? 'gn' : 'es')
+    setOriginLanguage(originLanguage === LANGUAGES.es ? LANGUAGES.gn : LANGUAGES.es)
     setOriginText(translatedText)
     setTranslatedText(originText)
   }
 
   const translate = (text: string, src: string) => {
-    // API call to translate text
+    // API call to translate text goes here!
 
     if (!text) {
       setTranslatedText('')
@@ -48,13 +33,10 @@ export default function Home() {
     setTranslatedText(TRANSLATION_EXAMPLES[src][randomIndex])
   }
 
-  const debouncedChange = useCallback(
-    debounce((text: string) => translate(text, originLanguage), 500),
-    []
-  )
+  const debouncedChange = debounce((text: string) => translate(text, originLanguage), 500)
 
   return (
-    <main className="flex min-h-screen items-center justify-center">
+    <main className="flex items-center justify-center min-h-screen">
       {/* Background */}
       <div className="w-screen h-screen absolute -z-50">
         <Image
@@ -62,31 +44,32 @@ export default function Home() {
           height={1920}
           width={1080}
           alt="World Map"
-          className="object-cover w-full h-full"
+          className="w-full h-full object-cover"
         />
       </div>
 
       {/* Copyright */}
-      <p className="absolute bottom-4 text-white/50 text-sm font-light">© 2024 Facultad de Ingenieria UDELAR</p>
+      <p className="absolute bottom-4 text-sm font-light text-white/50">© 2024 Facultad de Ingenieria UDELAR</p>
 
       {/* Translator */}
       <section className="flex flex-col items-center justify-center gap-6 sm:gap-10 w-[90%] max-w-5xl">
         {/* Swap Languages */}
-        <div className="flex items-center justify-center gap-6 sm:gap-10 w-full">
+        <div className="w-full flex items-center justify-center gap-6 sm:gap-10">
           {/* Origin language */}
-          <div className="flex items-center justify-start gap-4 px-4 py-2 w-40 bg-white rounded-full border-[1px] border-gray-300">
+          <div className="flex items-center justify-start gap-4 px-4 py-2 w-40 rounded-full border-[1px] bg-white border-gray-300">
             <Image
-              src={originLanguage === 'es' ? '/spain-flag.svg' : '/paraguay-flag.svg'}
+              src={originLanguage === LANGUAGES.es ? '/spain-flag.svg' : '/paraguay-flag.svg'}
               height={30}
               width={30}
-              alt="Spain Flag"
+              alt={originLanguage === LANGUAGES.es ? 'Spain Flag' : 'Paraguay Flag'}
               className="border-[1px] border-gray-300 rounded-full p-[1px]"
             />
-            <p className="font-medium">{originLanguage === 'es' ? 'Español' : 'Guarani'}</p>
+            <p className="font-medium">{originLanguage === LANGUAGES.es ? 'Español' : 'Guarani'}</p>
           </div>
+
           {/* Swap button */}
           <button
-            className="bg-black rounded-full p-2 hover:scale-105 transition-all"
+            className="bg-black rounded-full p-2 sm:hover:scale-105 transition-all"
             onClick={() => toggleLanguage()}
           >
             <Image
@@ -96,16 +79,17 @@ export default function Home() {
               alt="Swap"
             />
           </button>
+
           {/* Dest. Language */}
           <div className="flex items-center justify-start gap-4 px-4 py-2 w-40 bg-white rounded-full border-[1px] border-gray-300">
             <Image
-              src={originLanguage === 'es' ? '/paraguay-flag.svg' : '/spain-flag.svg'}
+              src={originLanguage === LANGUAGES.es ? '/paraguay-flag.svg' : '/spain-flag.svg'}
               height={30}
               width={30}
-              alt="Paraguay Flag"
+              alt={originLanguage === LANGUAGES.es ? 'Paraguay Flag' : 'Spain Flag'}
               className="border-[1px] border-gray-300 rounded-full p-[1px]"
             />
-            <p className="font-medium">{originLanguage === 'es' ? 'Guarani' : 'Español'}</p>
+            <p className="font-medium">{originLanguage === LANGUAGES.es ? 'Guarani' : 'Español'}</p>
           </div>
         </div>
 
@@ -118,7 +102,9 @@ export default function Home() {
               name="input-text"
               id="input-text"
               placeholder={
-                originLanguage === 'es' ? 'Escribe el texto a traducir...' : 'Ehai pe jehaipyre rembohasa hagua...'
+                originLanguage === LANGUAGES.es
+                  ? 'Escribe el texto a traducir...'
+                  : 'Ehai pe jehaipyre rembohasa hagua...'
               }
               value={originText}
               onChange={(e) => {
@@ -132,14 +118,7 @@ export default function Home() {
                 <p className="text-sm">
                   <strong>{originText.length}</strong> / 5.000
                 </p>
-                <button>
-                  <Image
-                    src="/icons/copy.svg"
-                    height={24}
-                    width={24}
-                    alt="Copy to Clipboard"
-                  />
-                </button>
+                <CopyButton textToCopy={originText} />
               </div>
             </div>
           </div>
@@ -150,7 +129,7 @@ export default function Home() {
               className="h-32 sm:h-48 focus:outline-none resize-none"
               name="output-text"
               id="output-text"
-              placeholder={originLanguage === 'es' ? 'Traducción' : 'Ñembohasaha'}
+              placeholder={originLanguage === LANGUAGES.es ? 'Traducción' : 'Ñembohasaha'}
               readOnly
               value={translatedText}
             ></textarea>
@@ -160,20 +139,13 @@ export default function Home() {
                 <p className="text-sm">
                   <strong>{translatedText.length}</strong> / 5.000
                 </p>
-                <button>
-                  <Image
-                    src="/icons/copy.svg"
-                    height={24}
-                    width={24}
-                    alt="Copy to Clipboard"
-                  />
-                </button>
+                <CopyButton textToCopy={translatedText} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Translation Button */}
+        {/* Translation Button (In case debounce doesn't work correctly) */}
         {/* <div>
           <button
             onClick={() => translate(originText, originLanguage)}
