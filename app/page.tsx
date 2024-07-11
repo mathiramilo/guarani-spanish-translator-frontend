@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 
+import { translate } from '@/services/translate'
 import CopyButton from '@/components/CopyButton'
 import { TRANSLATION_EXAMPLES, LANGUAGES } from '@/utils/consts'
 import { debounce } from '@/utils/debounce'
@@ -18,22 +19,22 @@ export default function Home() {
     setTranslatedText(originText)
   }
 
-  const translate = (text: string, src: string) => {
-    // API call to translate text goes here!
-
+  const translateText = async (text: string, src: string) => {
     if (!text) {
       setTranslatedText('')
       return
     }
 
-    // Random number between 0 and 4
-    const randomIndex = Math.floor(Math.random() * 5)
-
-    // Set translated text
-    setTranslatedText(TRANSLATION_EXAMPLES[src][randomIndex])
+    // API call
+    try {
+      const translated = await translate(text, src)
+      setTranslatedText(translated)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  const debouncedChange = debounce((text: string) => translate(text, originLanguage), 500)
+  const debouncedChange = debounce((text: string) => translateText(text, originLanguage), 500)
 
   return (
     <main className="flex items-center justify-center min-h-screen">
