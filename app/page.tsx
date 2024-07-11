@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { translate } from '@/services/translate'
 import CopyButton from '@/components/CopyButton'
 import { TRANSLATION_EXAMPLES, LANGUAGES } from '@/utils/consts'
-import { debounce } from '@/utils/debounce'
+// import { debounce } from '@/utils/debounce'
 
 export default function Home() {
   const [originLanguage, setOriginLanguage] = useState<string>(LANGUAGES.es)
@@ -34,7 +34,7 @@ export default function Home() {
     }
   }
 
-  const debouncedChange = debounce((text: string) => translateText(text, originLanguage), 500)
+  // const debouncedChange = debounce((text: string) => translateText(text, originLanguage), 500)
 
   return (
     <main className="flex items-center justify-center min-h-screen">
@@ -110,7 +110,7 @@ export default function Home() {
               value={originText}
               onChange={(e) => {
                 setOriginText(e.target.value)
-                debouncedChange(e.target.value)
+                // debouncedChange(e.target.value)
               }}
             ></textarea>
             <div>
@@ -147,14 +147,20 @@ export default function Home() {
         </div>
 
         {/* Translation Button (In case debounce doesn't work correctly) */}
-        {/* <div>
+        <div>
           <button
-            onClick={() => translate(originText, originLanguage)}
-            className="bg-black text-white py-2 px-4 rounded-full"
+            onClick={() => translateText(originText, originLanguage)}
+            className="bg-black text-white py-2 px-4 rounded-full flex items-center gap-2 sm:hover:scale-[1.03] transition-all"
           >
-            Traducir
+            <span>{originLanguage === LANGUAGES.es ? 'Traducir' : "Ñe'ẽmbohasa"}</span>
+            <Image
+              src="/icons/circle-arrow-right.svg"
+              height={30}
+              width={30}
+              alt="Arrow Right"
+            />
           </button>
-        </div> */}
+        </div>
       </section>
     </main>
   )
