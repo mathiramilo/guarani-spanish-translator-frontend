@@ -1,17 +1,20 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 import { translate } from '@/services/translate'
 import CopyButton from '@/components/CopyButton'
 import { TRANSLATION_EXAMPLES, LANGUAGES } from '@/utils/consts'
-// import { debounce } from '@/utils/debounce'
+import { debounce } from '@/utils/debounce'
 
 export default function Home() {
-  const [originLanguage, setOriginLanguage] = useState<string>(LANGUAGES.es)
-  const [originText, setOriginText] = useState<string>('')
-  const [translatedText, setTranslatedText] = useState<string>('')
+  const [originLanguage, setOriginLanguage] = useState(LANGUAGES.es)
+  const [originText, setOriginText] = useState('')
+  const [translatedText, setTranslatedText] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const toggleLanguage = () => {
     setOriginLanguage(originLanguage === LANGUAGES.es ? LANGUAGES.gn : LANGUAGES.es)
@@ -20,21 +23,39 @@ export default function Home() {
   }
 
   const translateText = async (text: string, src: string) => {
+    // Debug
+    console.log('translateText() Call')
+    console.log({ text, src })
+
     if (!text) {
       setTranslatedText('')
       return
     }
 
     // API call
-    try {
-      const translated = await translate(text, src)
-      setTranslatedText(translated)
-    } catch (error) {
-      console.error(error)
-    }
+    // setLoading(true)
+    // try {
+    //   const translated = await translate(text, src)
+    //   setTranslatedText(translated)
+    // } catch (error) {
+    //   console.error(error)
+    // } finally {
+    //   setLoading(false)
+    // }
+
+    // Mock API call
+    setLoading(true)
+    const randomIndex = Math.floor(Math.random() * 5)
+    setTranslatedText(TRANSLATION_EXAMPLES[src][randomIndex])
+    setTimeout(() => {
+      setLoading(false)
+    }, 1000)
   }
 
-  // const debouncedChange = debounce((text: string) => translateText(text, originLanguage), 500)
+  const debouncedChange = useCallback(
+    debounce((text: string) => translateText(text, originLanguage), 750),
+    []
+  )
 
   return (
     <main className="flex items-center justify-center min-h-screen">
@@ -110,7 +131,7 @@ export default function Home() {
               value={originText}
               onChange={(e) => {
                 setOriginText(e.target.value)
-                // debouncedChange(e.target.value)
+                debouncedChange(e.target.value)
               }}
             ></textarea>
             <div>
@@ -126,14 +147,20 @@ export default function Home() {
 
           {/* Destination Text */}
           <div className="flex flex-col gap-4 p-6 bg-white border-[1px] border-gray-300 rounded-2xl">
-            <textarea
-              className="h-32 sm:h-48 focus:outline-none resize-none"
-              name="output-text"
-              id="output-text"
-              placeholder={originLanguage === LANGUAGES.es ? 'Traducción' : 'Ñembohasaha'}
-              readOnly
-              value={translatedText}
-            ></textarea>
+            {loading ? (
+              <div className="h-32 sm:h-48">
+                <Skeleton count={5} />
+              </div>
+            ) : (
+              <textarea
+                className="h-32 sm:h-48 focus:outline-none resize-none"
+                name="output-text"
+                id="output-text"
+                placeholder={originLanguage === LANGUAGES.es ? 'Traducción' : 'Ñembohasaha'}
+                readOnly
+                value={translatedText}
+              ></textarea>
+            )}
             <div>
               <hr className="border-gray-200 mb-2" />
               <div className="flex items-center justify-between w-full">
@@ -147,7 +174,7 @@ export default function Home() {
         </div>
 
         {/* Translation Button (In case debounce doesn't work correctly) */}
-        <div>
+        {/* <div>
           <button
             onClick={() => translateText(originText, originLanguage)}
             className="bg-black text-white py-2 px-4 rounded-full flex items-center gap-2 sm:hover:scale-[1.03] transition-all"
@@ -160,7 +187,7 @@ export default function Home() {
               alt="Arrow Right"
             />
           </button>
-        </div>
+        </div> */}
       </section>
     </main>
   )
